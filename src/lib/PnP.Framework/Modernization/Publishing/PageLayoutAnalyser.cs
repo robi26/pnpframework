@@ -215,8 +215,7 @@ namespace PnP.Framework.Modernization.Publishing
             {
                 Uri uri = new Uri(pageLayoutFileUrl);
                 var host = $"{uri.Scheme}://{uri.Host}";
-                var path = pageLayoutFileUrl.Replace(host, "");
-
+                var path = pageLayoutFileUrl.Replace(host, "").Replace($":{uri.Port}",String.Empty);
                 var file = _siteCollContext.Web.GetFileByServerRelativeUrl(path);
                 _siteCollContext.Load(file, o => o.ListItemAllFields);
                 _siteCollContext.ExecuteQueryRetry();
