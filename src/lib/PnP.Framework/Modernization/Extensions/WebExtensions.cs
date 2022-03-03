@@ -24,7 +24,12 @@ namespace Microsoft.SharePoint.Client
         {
             // Get pages library
             ListCollection listCollection = web.Lists;
-            listCollection.EnsureProperties(coll => coll.Include(li => li.BaseTemplate, li => li.RootFolder));
+            //listCollection.EnsureProperties(coll => coll.Include(li => li.BaseTemplate, li => li.RootFolder));
+            foreach (var item in listCollection)
+            {
+                web.Context.Load(item, item => item.BaseTemplate, item => item.RootFolder);
+            }
+            web.Context.ExecuteQuery();
             var sitePagesLibrary = listCollection.Where(p => p.BaseTemplate == (int)ListTemplateType.WebPageLibrary).FirstOrDefault();
             if (sitePagesLibrary != null)
             {
@@ -76,7 +81,7 @@ namespace Microsoft.SharePoint.Client
             {
                 web.EnsureProperty(p => p.ServerRelativeUrl);
                 string listRelativeUrl = $"{web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{webRelativeListName}";
-                
+
                 // ByPass for 2010 onwards support
                 listHoldingPages = web.Lists.GetByTitle(webRelativeListName);
 
@@ -598,7 +603,7 @@ namespace Microsoft.SharePoint.Client
             //Need to load all lists, server cannot process "Equals" or "ToLower" statements - generates CSOM error.
             //Its not ideal, but passes unit tests
 
-            return lists.SingleOrDefault(o => o.RootFolder.Name.Equals(listName,StringComparison.InvariantCultureIgnoreCase));
+            return lists.SingleOrDefault(o => o.RootFolder.Name.Equals(listName, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }
