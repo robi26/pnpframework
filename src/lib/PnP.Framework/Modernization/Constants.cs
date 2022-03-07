@@ -98,7 +98,7 @@ namespace PnP.Framework.Modernization
                 </View>";
 
         // Cross site assets transfers that are currently allowed
-        public static string[] AllowedAssetFileExtensions = new string[] { "png", "jpg", "gif", "mp4", "mpeg" };
+        public static string[] AllowedAssetFileExtensions = new string[] { "png", "jpg", "jpeg", "gif", "mp4", "mpeg" };
         // Cross site assets transfer blocked files that are referred to
         public static string[] BlockedAssetFileExtensions = new string[] { "aspx" };
         // OOB Publishing Portal page layouts - these layouts are already included in the default mapping file

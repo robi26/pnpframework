@@ -580,7 +580,7 @@ namespace PnP.Framework.Modernization.Transform
 
                             var myWebPart = page.NewWebPart(baseControl);
                             myWebPart.Order = map.Order;
-                            myWebPart.PropertiesJson = jsonDecoded;
+                            myWebPart.PropertiesJson = jsonDecoded.Replace("\\%","\\\\%");
 
                             page.AddControl(myWebPart, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
                             LogInfo($"{LogStrings.ContentAdded} '{ myWebPart.Title }' {LogStrings.ContentClientToTargetPage}", LogStrings.Heading_AddingWebPartsToPage);

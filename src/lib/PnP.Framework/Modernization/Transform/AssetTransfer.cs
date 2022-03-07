@@ -130,6 +130,11 @@ namespace PnP.Framework.Modernization.Transform
             //      not aspx pages 
             //      located in the pages, site pages libraries
 
+            if(sourceUrl.Contains("?"))
+            {
+                sourceUrl = sourceUrl.Substring(0, sourceUrl.IndexOf("?"));
+            }
+
             var fileExtension = Path.GetExtension(sourceUrl).ToLower();
 
             // Check block list
