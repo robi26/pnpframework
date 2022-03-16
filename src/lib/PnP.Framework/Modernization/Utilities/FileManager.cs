@@ -10,7 +10,7 @@ namespace PnP.Framework.Modernization.Utilities
     /// <summary>
     /// Class that's responsible for loading (mapping) files
     /// </summary>
-    public class FileManager: BaseTransform
+    public class FileManager : BaseTransform
     {
 
         #region Construction
@@ -18,7 +18,7 @@ namespace PnP.Framework.Modernization.Utilities
         /// Default constructor
         /// </summary>
         /// <param name="logObservers">Connected loggers</param>
-        public FileManager(IList<ILogObserver> logObservers = null): base()
+        public FileManager(IList<ILogObserver> logObservers = null) : base()
         {
             //Register any existing observers
             if (logObservers != null)
@@ -50,7 +50,7 @@ namespace PnP.Framework.Modernization.Utilities
                 {
                     string delimiter = this.DetectDelimiter(lines);
 
-                    foreach(var line in lines)
+                    foreach (var line in lines)
                     {
                         var split = line.Split(new string[] { delimiter }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -99,6 +99,12 @@ namespace PnP.Framework.Modernization.Utilities
 
                     foreach (var line in lines)
                     {
+                        if (line.StartsWith("//"))
+                        {
+                            LogDebug($"Omitting line {line}, comment.", LogStrings.Heading_UrlRewriter);
+                            continue;
+                        }
+
                         var split = line.Split(new string[] { delimiter }, StringSplitOptions.RemoveEmptyEntries);
 
                         if (split.Length == 2)
@@ -173,11 +179,12 @@ namespace PnP.Framework.Modernization.Utilities
         #region Helper methods
         private string DetectDelimiter(IEnumerable<string> lines)
         {
-            if (lines.First().IndexOf(',') > 0)
+            var firstLine = lines.First(x => !x.StartsWith("//"));
+            if (firstLine.IndexOf(',') > 0)
             {
                 return ",";
             }
-            else if (lines.First().IndexOf(';') > 0)
+            else if (firstLine.IndexOf(';') > 0)
             {
                 return ";";
             }
