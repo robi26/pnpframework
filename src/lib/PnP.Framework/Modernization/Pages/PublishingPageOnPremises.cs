@@ -153,7 +153,13 @@ namespace PnP.Framework.Modernization.Pages
                         if (!string.IsNullOrEmpty(fieldWebPartProperty.Functions))
                         {
                             // execute function
-                            var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty.Functions, fieldWebPartProperty.Name, MapToFunctionProcessorFieldType(fieldWebPartProperty.Type));
+                            var type = MapToFunctionProcessorFieldType(fieldWebPartProperty.Type);
+                            if(fieldWebPart.Name == "NewsCenterKontaktperson")
+                            {
+                                type = PublishingFunctionProcessor.FieldType.UserCollection;
+                            }
+
+                            var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty.Functions, fieldWebPartProperty.Name, type);
                             if (!string.IsNullOrEmpty(evaluatedField.Item1) && !properties.ContainsKey(evaluatedField.Item1))
                             {
                                 properties.Add(evaluatedField.Item1, evaluatedField.Item2);

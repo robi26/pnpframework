@@ -180,6 +180,7 @@ namespace PnP.Framework.Modernization.Publishing {
         
         /// <remarks/>
         datetime,
+        userCollection,
     }
     
     /// <remarks/>

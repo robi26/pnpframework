@@ -28,6 +28,7 @@ namespace PnP.Framework.Modernization.Publishing
             Integer = 3,
             DateTime = 4,
             User = 5,
+            UserCollection = 6,
         }
 #pragma warning restore CA1720
 
@@ -278,6 +279,14 @@ namespace PnP.Framework.Modernization.Publishing
                         if (page.FieldExistsAndUsed(input.Name))
                         {
                             input.Value = ((FieldUserValue)page[input.Name]).LookupId.ToString();
+                        }
+                    }
+                    else if (propertyType == FieldType.UserCollection)
+                    {
+                        if (page.FieldExistsAndUsed(input.Name))
+                        {
+                            var val = page[input.Name] as FieldUserValue[];
+                            input.Value = string.Join(";", val.Select(x => x.LookupId.ToString()));
                         }
                     }
                 }
