@@ -24,6 +24,8 @@ namespace Microsoft.SharePoint.Client
         {
             // Get pages library
             ListCollection listCollection = web.Lists;
+            web.Context.Load(listCollection);
+            web.Context.ExecuteQuery();
             //listCollection.EnsureProperties(coll => coll.Include(li => li.BaseTemplate, li => li.RootFolder));
             foreach (var item in listCollection)
             {
