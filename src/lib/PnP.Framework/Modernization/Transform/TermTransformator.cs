@@ -61,6 +61,10 @@ namespace PnP.Framework.Modernization.Transform
             if (!string.IsNullOrEmpty(baseTransformationInformation?.TermMappingFile))
             {
                 this.termMappings = CacheManager.Instance.GetTermMapping(baseTransformationInformation.TermMappingFile, logObservers);
+                foreach (var item in this.termMappings)
+                {
+                    item.SourceTerm = item.SourceTerm.Replace('＆', '&');
+                }
             }
 
             if (baseTransformationInformation != null)
