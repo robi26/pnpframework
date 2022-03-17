@@ -1247,8 +1247,8 @@ namespace PnP.Framework.Modernization.Transform
 
                         var srcPageEditor = this.userTransformator.RemapPrincipal(this.sourceClientContext, this.SourcePageEditor);
 
-                        var pageAuthorUser = clonedTargetContext.Web.EnsureUser(srcPageAuthor);
-                        var pageEditorUser = clonedTargetContext.Web.EnsureUser(srcPageEditor);
+                        var pageAuthorUser = clonedTargetContext.Web.EnsureUser(srcPageAuthor.GetUserName());
+                        var pageEditorUser = clonedTargetContext.Web.EnsureUser(srcPageEditor.GetUserName());
                         clonedTargetContext.Load(pageAuthorUser);
                         clonedTargetContext.Load(pageEditorUser);
                         clonedTargetContext.ExecuteQueryRetry();
