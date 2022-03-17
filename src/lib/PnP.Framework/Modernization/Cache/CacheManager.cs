@@ -178,7 +178,7 @@ namespace PnP.Framework.Modernization.Cache
         public void SetAADTenantId(Guid tenantId, Uri site)
         {
             var aadTenantId = Store.GetAndInitialize<Dictionary<string, Guid>>(StoreOptions.GetKey(keyAadTenantId));
-            
+
             if (!aadTenantId.ContainsKey(site.ToString()))
             {
                 aadTenantId.Add(site.ToString(), tenantId);
@@ -195,7 +195,7 @@ namespace PnP.Framework.Modernization.Cache
 
         public void AddAssetTransferredEntity(AssetTransferredEntity asset)
         {
-            var assetsTransferred = Store.GetAndInitialize<List<AssetTransferredEntity>>(StoreOptions.GetKey(keyAssetsTransferred)); 
+            var assetsTransferred = Store.GetAndInitialize<List<AssetTransferredEntity>>(StoreOptions.GetKey(keyAssetsTransferred));
             if (!assetsTransferred.Contains(asset))
             {
                 assetsTransferred.Add(asset);
@@ -559,7 +559,7 @@ namespace PnP.Framework.Modernization.Cache
             int lcid = (int)context.Web.EnsureProperty(p => p.Language);
 
             var propertyBagKey = Constants.WebPropertyKeyPagesListId;
-            
+
             var publishingPagesLibraryNames = Store.GetAndInitialize<Dictionary<int, string>>(StoreOptions.GetKey(keyPublishingPagesLibraryNames));
             if (publishingPagesLibraryNames.ContainsKey(lcid))
             {
@@ -1138,7 +1138,7 @@ namespace PnP.Framework.Modernization.Cache
                     }
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 // Logging is not needed as an "empty" ensured user is handled by the callers of this method
             }
@@ -1217,7 +1217,7 @@ namespace PnP.Framework.Modernization.Cache
             if (loadedTerm != null)
             {
                 termInfo = loadedTerm.Name;
-                
+
                 // add to cache
                 termCache.Add(termId, termInfo);
                 Store.Set(StoreOptions.GetKey(keyTermCache), termCache, StoreOptions.EntryOptions);
@@ -1240,17 +1240,20 @@ namespace PnP.Framework.Modernization.Cache
         public void StoreTermSetTerms(ClientContext context, Guid termSetId, Guid sourceSspId, bool isSP2010, bool isSourceTerm)
         {
             var termsAlreadyInCache = GetTransformTermCacheTermsByTermSet(context, termSetId);
-            if(termsAlreadyInCache == default)
+            if (termsAlreadyInCache == default)
             {
                 var termCache = Store.GetAndInitialize<Dictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
-                var termSetTerms = isSP2010 ? TermTransformator.CallTaxonomyWebServiceFindTermSetId(context, sourceSspId, termSetId) 
+                var termSetTerms = isSP2010 ? TermTransformator.CallTaxonomyWebServiceFindTermSetId(context, sourceSspId, termSetId)
                     : TermTransformator.GetAllTermsFromTermSet(termSetId, context);
 
                 foreach (var termSetTerm in termSetTerms)
                 {
                     var term = termSetTerm.Value;
                     term.IsSourceTerm = isSourceTerm;
-                    termCache.Add(termSetTerm.Key, term);
+                    if (!termCache.ContainsKey(termSetTerm.Key))
+                    {
+                        termCache.Add(termSetTerm.Key, term);
+                    }
                 }
                 Store.Set(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
             }
@@ -1290,7 +1293,7 @@ namespace PnP.Framework.Modernization.Cache
             {
                 return candidateTerms.Select(o => o.Value).ToList();
             }
-            
+
             return default;
         }
 
@@ -1307,7 +1310,7 @@ namespace PnP.Framework.Modernization.Cache
             var candidateTerms = termCache.Where(o => o.Value.TermSetId == termSetId);
             if (candidateTerms.Any())
             {
-                return candidateTerms.ToDictionary(o=>o.Key, o=>o.Value);
+                return candidateTerms.ToDictionary(o => o.Key, o => o.Value);
             }
 
             return default;
