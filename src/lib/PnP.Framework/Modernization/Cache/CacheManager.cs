@@ -1254,6 +1254,18 @@ namespace PnP.Framework.Modernization.Cache
                     {
                         termCache.Add(termSetTerm.Key, term);
                     }
+                    else
+                    {
+                        var t = termCache[termSetTerm.Key];
+                        if (t.TermPath.StartsWith("Glossar FHNW|NewsCenter|Herausgeber"))
+                        {
+                            termCache[termSetTerm.Key] = term;
+                        }
+                        else
+                        {
+                            // this is ok, we already have the correct term
+                        }
+                    }
                 }
                 Store.Set(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
             }
@@ -1288,7 +1300,7 @@ namespace PnP.Framework.Modernization.Cache
         {
             var termCache = Store.GetAndInitialize<Dictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
 
-            var candidateTerms = termCache.Where(o => o.Value.TermLabel == termLabel || o.Value.TermPath == termPath);
+            var candidateTerms = termCache.Where(o => o.Value.TermLabel.Replace('＆', '&') == termLabel || o.Value.TermPath.Replace('＆', '&') == termPath);
             if (candidateTerms.Any())
             {
                 return candidateTerms.Select(o => o.Value).ToList();
