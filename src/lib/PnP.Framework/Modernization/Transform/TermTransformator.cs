@@ -80,10 +80,10 @@ namespace PnP.Framework.Modernization.Transform
         ///     TaxonomyFieldValueCollection - Original Array
         ///     List&lt;TaxonomyFieldValue&gt; - Items to remove as they are not resolved
         /// </returns>
-        public Tuple<TaxonomyFieldValueCollection,List<TaxonomyFieldValue>>  TransformCollection(TaxonomyFieldValueCollection taxonomyFieldValueCollection)
+        public Tuple<TaxonomyFieldValueCollection, List<TaxonomyFieldValue>> TransformCollection(TaxonomyFieldValueCollection taxonomyFieldValueCollection)
         {
             List<TaxonomyFieldValue> exceptFields = new List<TaxonomyFieldValue>();
-            
+
             foreach (var fieldValue in taxonomyFieldValueCollection)
             {
                 var result = this.Transform(new TermData() { TermGuid = Guid.Parse(fieldValue.TermGuid), TermLabel = fieldValue.Label });
@@ -97,7 +97,7 @@ namespace PnP.Framework.Modernization.Transform
                     exceptFields.Add(fieldValue);
                 }
             }
-            
+
             // Return fields to remove by calling code.
             return new Tuple<TaxonomyFieldValueCollection, List<TaxonomyFieldValue>>(taxonomyFieldValueCollection, exceptFields);
         }
@@ -105,7 +105,7 @@ namespace PnP.Framework.Modernization.Transform
         /// <summary>
         /// Main entry method for transforming terms
         /// </summary>
-        public TermData Transform(TermData inputSourceTerm)
+        public TermData Transform(TermData inputSourceTerm, bool logWarning = true)
         {
             //Design:
             // This will have two modes:
@@ -115,13 +115,12 @@ namespace PnP.Framework.Modernization.Transform
             //Scenarios:
             // Term Ids or Term Names
             // Source or Target Term ID/Name may not be found
-                       
+
             // Default Mode 
             if (!this.skipTermStoreMapping && !_baseTransformationInformation.IsCrossFarmTransformation)
             {
                 var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
-
-                if (resolvedInputMapping.IsTermResolved)
+                if (resolvedInputMapping != null && resolvedInputMapping.IsTermResolved)
                 {
                     //Check if the source term ID exists in target then map.
                     var resolvedInputMappingInTarget = ResolveTermInCache(this._targetContext, inputSourceTerm.TermGuid);
@@ -149,7 +148,13 @@ namespace PnP.Framework.Modernization.Transform
             if (termMappings != null)
             {
                 var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
+                if (resolvedInputMapping == null)
+                {
+                    LogWarning(string.Format(LogStrings.Warning_TermMappingFailedMapping, inputSourceTerm.TermGuid, inputSourceTerm.TermLabel), LogStrings.Heading_TermMapping);
+                    return inputSourceTerm;
+                }
                 resolvedInputMapping.TermPath = resolvedInputMapping.TermPath.Replace('＆', '&');
+                resolvedInputMapping.TermLabel = resolvedInputMapping.TermLabel.Replace('＆', '&');
                 //Check Source Mappings
                 foreach (var mapping in termMappings)
                 {
@@ -217,8 +222,11 @@ namespace PnP.Framework.Modernization.Transform
                     }
                 }
 
-                //Log Failure in mapping
-                LogWarning(string.Format(LogStrings.Warning_TermMappingFailedMapping, inputSourceTerm.TermGuid, inputSourceTerm.TermLabel), LogStrings.Heading_TermMapping);
+                if (logWarning)
+                {
+                    //Log Failure in mapping
+                    LogWarning(string.Format(LogStrings.Warning_TermMappingFailedMapping, inputSourceTerm.TermGuid, inputSourceTerm.TermLabel), LogStrings.Heading_TermMapping);
+                }
             }
 
 
@@ -351,7 +359,7 @@ namespace PnP.Framework.Modernization.Transform
         public TermData ResolveTermInCache(ClientContext context, string termPath)
         {
             //Use the cache
-            var result = CacheManager.Instance.GetTransformTermCacheTermByName(context, termPath:termPath);
+            var result = CacheManager.Instance.GetTransformTermCacheTermByName(context, termPath: termPath);
             if (result != default && result.Any())
             {
                 var cachedTerm = result.First();
@@ -447,10 +455,10 @@ namespace PnP.Framework.Modernization.Transform
                  "<soap:Body>" +
                      "<GetChildTermsInTermSet xmlns=\"http://schemas.microsoft.com/sharepoint/taxonomy/soap/\">" +
                        "<sspId>{0}</sspId>" +
-                       "<termSetId>{1}</termSetId> "+
+                       "<termSetId>{1}</termSetId> " +
                        "<lcid>{2}</lcid>" +
                      "</GetChildTermsInTermSet>" +
-                 "</soap:Body>", sspId.ToString(), termSetId.ToString(),1033));
+                 "</soap:Body>", sspId.ToString(), termSetId.ToString(), 1033));
 
                 soapEnvelope.Append("</soap:Envelope>");
 
@@ -501,7 +509,7 @@ namespace PnP.Framework.Modernization.Transform
                        */
 
                         XElement queryXml = XElement.Parse(xDoc.DocumentElement.InnerText);
-                        var xmlTermSetId = termSetId.ToString().Trim('{','}');
+                        var xmlTermSetId = termSetId.ToString().Trim('{', '}');
                         var xmlTermSetLabel = "";
                         var foundTermSetName = false;
                         var listOfTerms = new List<XmlTermSetTerm>();
@@ -531,7 +539,7 @@ namespace PnP.Framework.Modernization.Transform
 
                             listOfTerms.Add(term);
 
-                            
+
                         }
 
                         //Term Set Details
