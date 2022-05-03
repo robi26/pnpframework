@@ -158,6 +158,10 @@ namespace PnP.Framework.Modernization.Pages
                             {
                                 type = PublishingFunctionProcessor.FieldType.UserCollection;
                             }
+                            if (fieldWebPart.Name == "HslePerson")
+                            {
+                                type = PublishingFunctionProcessor.FieldType.User;
+                            }
 
                             var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty.Functions, fieldWebPartProperty.Name, type);
                             if (!string.IsNullOrEmpty(evaluatedField.Item1) && !properties.ContainsKey(evaluatedField.Item1))

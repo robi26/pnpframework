@@ -281,6 +281,7 @@ namespace PnP.Framework.Modernization.Transform
                 }
                 else
                 {
+                    principalInput = StripUserPrefixTokenAndDomain(principalInput);
                     LogInfo(string.Format(LogStrings.UserTransformNotRemappedUser, principalInput.GetUserName()), LogStrings.Heading_UserTransform);
                 }
             }
