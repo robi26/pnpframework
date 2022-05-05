@@ -126,7 +126,8 @@ namespace PnP.Framework.Modernization.Publishing
                 {
                     if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(topicHeaderField.Name))
                     {
-                        targetPage.PageHeader.TopicHeader = publishingPageTransformationInformation.SourcePage[topicHeaderField.Name].ToString();
+                        var topicHeader = GetFieldValue(topicHeaderField);
+                        targetPage.PageHeader.TopicHeader = topicHeader;
                         targetPage.PageHeader.ShowTopicHeader = true;
                     }
                 }
