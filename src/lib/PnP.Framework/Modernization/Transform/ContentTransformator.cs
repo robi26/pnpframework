@@ -16,7 +16,7 @@ namespace PnP.Framework.Modernization.Transform
     /// <summary>
     /// Transforms content from "classic" page to modern client side page
     /// </summary>
-    public class ContentTransformator: BaseTransform, IContentTransformator
+    public class ContentTransformator : BaseTransform, IContentTransformator
     {
         private PnPCore.IPage page;
         private PageTransformation pageTransformation;
@@ -47,7 +47,7 @@ namespace PnP.Framework.Modernization.Transform
         /// <param name="logObservers"></param>
         public ContentTransformator(ClientContext sourceClientContext, ClientContext targetClientContext, PnPCore.IPage page, PageTransformation pageTransformation, BaseTransformationInformation transformationInformation, IList<ILogObserver> logObservers = null) : base()
         {
-            
+
             //Register any existing observers
             if (logObservers != null)
             {
@@ -67,7 +67,7 @@ namespace PnP.Framework.Modernization.Transform
             this.targetClientContext = targetClientContext;
             this.isCrossSiteTransfer = IsCrossSiteTransfer();
 
-            
+
         }
         #endregion
 
@@ -130,7 +130,7 @@ namespace PnP.Framework.Modernization.Transform
                     LogInfo(LogStrings.NotTransformingTitleBar, LogStrings.Heading_MappingWebParts);
                     continue;
                 }
-                
+
                 // Assign the default mapping, if we're a more specific mapping than that will overwrite this mapping
                 Mapping mapping = defaultMapping;
 
@@ -160,7 +160,7 @@ namespace PnP.Framework.Modernization.Transform
                         LogDebug(LogStrings.ProcessingSelectorFunctions, LogStrings.Heading_MappingWebParts);
                         selectorResult = functionProcessor.Process(ref webPartData, webPart);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         // NotAvailableAtTargetException is used to "skip" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)
                         if (ex.InnerException is NotAvailableAtTargetException)
@@ -176,7 +176,7 @@ namespace PnP.Framework.Modernization.Transform
                         }
 
                         LogError($"{LogStrings.Error_AnErrorOccurredFunctions} - {ex.Message}", LogStrings.Heading_MappingWebParts, ex);
-                        throw;                          
+                        throw;
                     }
 
                     Mapping webPartMapping = null;
@@ -281,7 +281,7 @@ namespace PnP.Framework.Modernization.Transform
 
                         page.AddControl(text, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
                         LogInfo(LogStrings.AddedClientSideTextWebPart, LogStrings.Heading_AddingWebPartsToPage);
-                        
+
                     }
                     else if (map.ClientSideWebPart != null)
                     {
@@ -534,13 +534,13 @@ namespace PnP.Framework.Modernization.Transform
                             if (map.ClientSideWebPart.Type == ClientSideWebPartType.ClientWebPart)
                             {
                                 var addinComponents = componentsToAdd.Where(p => p.Name.Equals(webPartName, StringComparison.InvariantCultureIgnoreCase));
-                                foreach(var addin in addinComponents)
+                                foreach (var addin in addinComponents)
                                 {
                                     // Find the right add-in web part via title matching...maybe not bullet proof but did find anything better for now
                                     JObject wpJObject = JObject.Parse(addin.Manifest);
 
                                     // As there can be multiple classic web parts (via provider hosted add ins or SharePoint hosted add ins) we're looping to find the first one with a matching title
-                                    foreach(var addinEntry in wpJObject["preconfiguredEntries"])
+                                    foreach (var addinEntry in wpJObject["preconfiguredEntries"])
                                     {
                                         if (addinEntry["title"]["default"].Value<string>() == webPart.Title)
                                         {
@@ -580,7 +580,7 @@ namespace PnP.Framework.Modernization.Transform
 
                             var myWebPart = page.NewWebPart(baseControl);
                             myWebPart.Order = map.Order;
-                            myWebPart.PropertiesJson = jsonDecoded.Replace("\\%","\\\\%");
+                            myWebPart.PropertiesJson = jsonDecoded.Replace("\\%", "\\\\%").Replace("\n", String.Empty);
 
                             page.AddControl(myWebPart, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
                             LogInfo($"{LogStrings.ContentAdded} '{ myWebPart.Title }' {LogStrings.ContentClientToTargetPage}", LogStrings.Heading_AddingWebPartsToPage);
@@ -605,7 +605,7 @@ namespace PnP.Framework.Modernization.Transform
             {
                 return false;
             }
-            
+
             if (this.sourceClientContext.Web.GetUrl().Equals(this.targetClientContext.Web.GetUrl(), StringComparison.InvariantCultureIgnoreCase))
             {
                 return false;
@@ -614,7 +614,7 @@ namespace PnP.Framework.Modernization.Transform
             return true;
         }
 
-        private void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string,string> globalProperties)
+        private void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string, string> globalProperties)
         {
             List<Property> tempList = new List<Property>();
             if (webPartData.Properties != null)
@@ -667,7 +667,7 @@ namespace PnP.Framework.Modernization.Transform
 
         private JToken PopulateAddInProperties(JToken jsonProperties, WebPartEntity webpart)
         {
-            foreach(JToken property in jsonProperties["properties"]["clientWebPartProperties"])
+            foreach (JToken property in jsonProperties["properties"]["clientWebPartProperties"])
             {
                 var wpProp = property["name"].Value<string>();
                 if (!string.IsNullOrEmpty(wpProp))
@@ -696,7 +696,7 @@ namespace PnP.Framework.Modernization.Transform
 
             var url = cc.Web.GetUrl();
             Uri hostUri = new Uri(url);
-            
+
             // Add the fixed properties
             globalTokens.Add("Host", $"{hostUri.Scheme}://{hostUri.DnsSafeHost}");
             globalTokens.Add("Web", cc.Web.ServerRelativeUrl.TrimEnd('/'));
@@ -705,7 +705,7 @@ namespace PnP.Framework.Modernization.Transform
             globalTokens.Add("SiteId", cc.Site.Id.ToString());
 
             // Add the properties provided via configuration
-            foreach(var property in mappingProperties)
+            foreach (var property in mappingProperties)
             {
                 globalTokens.Add(property.Key, property.Value);
             }
